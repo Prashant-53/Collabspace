@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - CollabSpace</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h2>Login to CollabSpace</h2>
+    <form id="loginForm">
+      <input type="text" placeholder="Username" id="loginUsername" required />
+      <input type="password" placeholder="Password" id="loginPassword" required />
+      <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: loginUsername.value,
+          password: loginPassword.value
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        localStorage.setItem('user', result.username);
+        window.location.href = 'index.html';
+      } else {
+        alert('Login failed');
+      }
+    });
+  </script>
+</body>
+</html>

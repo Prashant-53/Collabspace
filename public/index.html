@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabSpace | Remote Collaboration Platform</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <style>
+        .sidebar {
+            background-color: #007bff;
+            /* Blue background */
+            color: black;
+        }
+
+        .nav-section h3 {
+            color: white;
+        }
+
+        .nav-item span {
+            color: black;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .nav-item:hover {
+            background-color: #0056b3;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chat-wrapper {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            width: 300px;
+            height: calc(100% - 60px);
+            background-color: #f1f1f1;
+            border-left: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .chat-wrapper .chat-header,
+        .chat-wrapper .chat-input {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+        }
+
+        .chat-wrapper .chat-messages {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">CollabSpace</div>
+            <div class="user-controls">
+                <button class="btn btn-primary" id="startVideoBtn">Start Video Call</button>
+                <button id="toggleChatBtn" class="btn btn-secondary" style="margin-left: 10px;"> Chat</button>
+                <div class="user-profile">
+                    <div class="profile-pic">JS</div>
+                    <span>John Smith</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="sidebar">
+            <div class="nav-section">
+                <h3>Navigation</h3>
+                <div class="nav-item" data-tab="workspace"><span>Workspace</span></div>
+                <div class="nav-item" data-tab="tasks"><span>Tasks</span></div>
+                <div class="nav-item" data-tab="files"><span>Files</span></div>
+                <div class="nav-item" data-tab="video"><span>Video Call</span></div>
+            </div>
+
+            <div class="nav-section">
+                <h3>Team Members</h3>
+                <div class="nav-item">
+                    <div class="profile-pic" style="width: 30px; height: 30px; font-size: 12px;">JS</div>
+                    <span id="accountUsername">Guest</span>
+                </div>
+                <div class="nav-item">
+                    <div class="profile-pic"
+                        style="width: 30px; height: 30px; font-size: 12px; background-color: #9b59b6;">AJ</div>
+                    <span>Alice Johnson</span>
+                </div>
+                <div class="nav-item">
+                    <div class="profile-pic"
+                        style="width: 30px; height: 30px; font-size: 12px; background-color: #e74c3c;">RD</div>
+                    <span>Robert Davis</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h2 id="tab-title">Marketing Campaign</h2>
+            </div>
+            <div class="content-body">
+                <!-- Workspace Tab -->
+                <div id="workspace-tab" class="tab-content active">
+                    <div class="workspace">
+                        <div class="workspace-header">
+                            <h3>Shared Document</h3>
+                            <button class="btn btn-primary">Save</button>
+                        </div>
+                        <div class="workspace-content" contenteditable="true">
+                            <h1>2025 Marketing Campaign</h1>
+                            <p>This document outlines our marketing strategy for the upcoming fiscal year.</p>
+                            <h2>Objectives</h2>
+                            <ul>
+                                <li>Increase social media engagement by 25%</li>
+                                <li>Launch new product line by Q3</li>
+                                <li>Expand into European markets</li>
+                            </ul>
+                            <h2>Budget Allocation</h2>
+                            <p>We need to finalize the budget distribution across different channels:</p>
+                            <ul>
+                                <li>Digital advertising: 40%</li>
+                                <li>Influencer partnerships: 25%</li>
+                                <li>Content creation: 20%</li>
+                                <li>Events and sponsorships: 15%</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Tab -->
+                <div id="tasks-tab" class="tab-content">
+                    <div class="task-board">
+                        <div class="task-column">
+                            <div class="task-column-header">
+                                <span>To Do</span>
+                                <button class="btn btn-primary add-task-btn" data-column="todo">Add Task</button>
+                            </div>
+                            <div class="task-list" id="todo-tasks">
+                                <!-- Tasks will be added dynamically here -->
+                            </div>
+                            <input type="text" class="task-input" id="todo-input" placeholder="New task...">
+                        </div>
+                        <div class="task-column">
+                            <div class="task-column-header">
+                                <span>In Progress</span>
+                                <button class="btn btn-primary add-task-btn" data-column="in-progress">Add Task</button>
+                            </div>
+                            <div class="task-list" id="in-progress-tasks">
+                                <!-- Tasks will be added dynamically here -->
+                            </div>
+                            <input type="text" class="task-input" id="in-progress-input" placeholder="New task...">
+                        </div>
+                        <div class="task-column">
+                            <div class="task-column-header">
+                                <span>Done</span>
+                                <button class="btn btn-primary add-task-btn" data-column="done">Add Task</button>
+                            </div>
+                            <div class="task-list" id="done-tasks">
+                                <!-- Tasks will be added dynamically here -->
+                            </div>
+                            <input type="text" class="task-input" id="done-input" placeholder="New task...">
+                        </div>
+                        <!-- Add Due Date and Reminder inside each task card -->
+                        <div class="task-card">
+                            <h4>${taskText}</h4>
+                            <label for="assignee">Assignee:</label>
+                            <select class="assignee-dropdown">
+                                <option value="Alice">Alice</option>
+                                <option value="Robert">Robert</option>
+                                <option value="John">John</option>
+                            </select>
+                            <label for="progress">Progress:</label>
+                            <input type="range" class="progress-tracker" min="0" max="100" value="0">
+                            <span class="progress-text">0%</span>
+
+                            <label for="due-date">Due Date:</label>
+                            <input type="date" class="due-date">
+                            <label for="reminder">Reminder:</label>
+                            <input type="datetime-local" class="reminder">
+                            <button class="btn btn-danger delete-task">Delete</button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Files Tab -->
+                <div id="files-tab" class="tab-content">
+                    <div class="file-list">
+                        <div class="file-item">
+                            <div class="file-icon">DOC</div>
+                            <div class="file-details">
+                                <h4>Marketing_Brief_v2.docx</h4>
+                                <p>Uploaded by Alice, 2 days ago</p>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                        <div class="file-item">
+                            <div class="file-icon">PPT</div>
+                            <div class="file-details">
+                                <h4>Campaign_Presentation.pptx</h4>
+                                <p>Uploaded by Robert, 1 week ago</p>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                        <div class="file-item">
+                            <div class="file-icon">IMG</div>
+                            <div class="file-details">
+                                <h4>Logo_Options.png</h4>
+                                <p>Uploaded by you, 3 days ago</p>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Tab -->
+                <div id="video-tab" class="tab-content">
+                    <div class="video-grid">
+                        <div class="video-container">
+                            <img src="https://via.placeholder.com/320x180" alt="Video placeholder">
+                        </div>
+                        <div class="video-container">
+                            <img src="https://via.placeholder.com/320x180" alt="Video placeholder">
+                        </div>
+                        <div class="video-container">
+                            <img src="https://via.placeholder.com/320x180" alt="Video placeholder">
+                        </div>
+                    </div>
+                    <div class="video-controls">
+                        <button class="video-btn" id="muteBtn">🎤</button>
+                        <button class="video-btn" id="videoBtn">📹</button>
+                        <button class="video-btn" id="shareBtn">📊</button>
+                        <button class="video-btn end-call" id="endCallBtn">📞</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Chat Pane -->
+        <div class="chat-wrapper">
+            <div class="chat-header">
+                <h3>Team Chat</h3>
+            </div>
+            <div class="chat-messages">
+                <div class="message received">
+                    <strong>Alice:</strong> Has everyone reviewed the latest campaign mockups?
+                </div>
+                <div class="message received">
+                    <strong>Robert:</strong> Yes, I've added some comments on slide 5.
+                </div>
+                <div class="message sent">
+                    <strong>You:</strong> I'll take a look and provide feedback by EOD.
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Type your message...">
+                <button>Send</button>
+            </div>
+        </div>
+
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.getElementById("toggleChatBtn").addEventListener("click", function () {
+            const chat = document.querySelector(".chat-wrapper");
+            chat.classList.toggle("hidden");
+        });
+    </script>
+    <script>
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const tabName = this.getAttribute('data-tab');
+
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Show the clicked tab
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+
+                // Update the title dynamically (optional)
+                const tabTitle = {
+                    workspace: "Workspace",
+                    tasks: "Tasks",
+                    files: "Files",
+                    video: "Video Call"
+                };
+                document.getElementById('tab-title').textContent = tabTitle[tabName] || "CollabSpace";
+            });
+        });
+
+        document.querySelectorAll('.add-task-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const column = this.getAttribute('data-column'); // Get column type (todo, in-progress, done)
+                const taskInput = document.getElementById(`${column}-input`); // Get input field for the column
+                const taskText = taskInput.value.trim(); // Get the value of the input field
+
+                if (taskText) {
+                    // Create task card
+                    const taskCard = document.createElement('div');
+                    taskCard.classList.add('task-card');
+                    taskCard.innerHTML = `
+                <h4>${taskText}</h4>
+                <button class="btn btn-danger delete-task">Delete</button>
+            `;
+
+                    // Append the task to the correct column's task list
+                    document.getElementById(`${column}-tasks`).appendChild(taskCard);
+
+                    // Clear the input field after adding the task
+                    taskInput.value = '';
+
+                    // Add delete functionality
+                    taskCard.querySelector('.delete-task').addEventListener('click', function () {
+                        taskCard.remove(); // Remove the task when clicked
+                    });
+                }
+            });
+        });
+
+    </script>
+    <script>
+        document.querySelectorAll('.add-task-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const column = this.getAttribute('data-column');
+        const taskInput = document.getElementById(`${column}-input`);
+        const taskText = taskInput.value.trim();
+
+        if (taskText) {
+            // Create task card
+            const taskCard = document.createElement('div');
+            taskCard.classList.add('task-card');
+            // taskCard.innerHTML = `
+            //     <h4>${taskText}</h4>
+            //     <label for="due-date">Due Date:</label>
+            //     <input type="date" class="due-date">
+            //     <label for="reminder">Reminder:</label>
+            //     <input type="datetime-local" class="reminder">
+            //     <label for="assignee">Assignee:</label>
+            //     <select class="assignee-dropdown">
+            //         <option value="Alice">Alice</option>
+            //         <option value="Robert">Robert</option>
+            //         <option value="John">John</option>
+            //     </select>
+            //     <label for="progress">Progress:</label>
+            //     <input type="range" class="progress-tracker" min="0" max="100" value="0">
+            //     <span class="progress-text">0%</span>
+            //     <button class="btn btn-danger delete-task">Delete</button>`;
+
+            // Append task to the appropriate column
+            document.getElementById(`${column}-tasks`).appendChild(taskCard);
+
+            // Clear input field after adding task
+            taskInput.value = '';
+
+            // Add delete functionality
+            taskCard.querySelector('.delete-task').addEventListener('click', function () {
+                taskCard.remove();  // Remove task on delete
+            });
+
+            // Add progress tracker functionality
+            taskCard.querySelector('.progress-tracker').addEventListener('input', function () {
+                const progressValue = this.value;
+                taskCard.querySelector('.progress-text').textContent = `${progressValue}%`;
+            });
+        }
+    });
+});
+
+    </script>
+
+</body>
+
+</html>
